@@ -1,13 +1,21 @@
 
+from instance import Bid, InstanceWDP
+
 def parse_instance(file_path):
     content = _read_file(file_path)
+
     first_line, content = _separate_first_line(content)
     n, m = _first_line_content(first_line)
-    # we save n and m after converting them to integers
+
     content = _separate_content(content)
-    contents = _line_content(line)
-    # we save each line maybe in a dict
-    
+
+    bids = []
+    for line in content:
+        price, items = _line_content(line)
+        bids.append(Bid(content.index(line), price, items))
+
+    return InstanceWDP(n, m, bids)
+
 def _read_file(file_path):
     with open(file_path, "r") as file:
         content = file.read()
@@ -32,6 +40,7 @@ def _first_line_content(first_line):
 
 def _line_content(line):
     values = line.split(' ')
-    price_item = int(values[0])
-    bids = values[1:]
-    return price_item, bids
+    price = float(values[0])
+    items = values[1:]
+    items = [int(item) for item in items]
+    return price, items
