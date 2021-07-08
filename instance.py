@@ -12,6 +12,9 @@ class Bid:
         self.price = price
         self.items = items
 
+        self.concurent_bids = []
+
+
 class InstanceWDP:
     """
     a Class that represent an instance of WDP which is caracterized by:
@@ -23,3 +26,15 @@ class InstanceWDP:
         self.n = n
         self.m = m
         self.bids = bids
+
+    def __getitem__(self, index):
+        return self.bids[index]
+
+    def build_concurent_items(self):
+        for bid in self.bids:
+            for potential_concurents in self.bids:
+                if bid != potential_concurents:
+                    for item in bid.items:
+                        if item in potential_concurents.items:
+                            bid.concurent_bids.append(potential_concurents)
+                            break
