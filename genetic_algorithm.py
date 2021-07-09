@@ -43,20 +43,19 @@ class Population:
             self._generate_population()
             return
 
-        for ind in self.population:
-            if len([g for g in ind.genome if g]) > 1:
-                print("youpi")
-
         self.__sort_based_score()
         best_individual = self.population[0]
+        best_individuals = self.population[:self._population_size//4]
+
 
         next_generation = self.__crossovers()
 
-        rest = self._generate_random_individuals(10)
+        rest = self._generate_random_individuals(self._population_size//4)
         next_generation += rest
         self.population = next_generation
+        self.population.append(best_individuals)
         self.__mutations()
-        next_generation.append(best_individual)
+        self.population.append(best_individual)
         self._current_generation += 1
 
     def __remove_conflicted_items(self):
@@ -64,7 +63,7 @@ class Population:
 
     def __select_bests_in_current_generation(self):
         """ methode that select the bests individuals in the current generation """
-        return self.population[30:]
+        return self.population[:30]
         # a revoir
 
     def _generate_random_individuals(self, nb_individuals):
@@ -88,7 +87,7 @@ class Population:
         best_in_this_generation = self.__select_bests_in_current_generation()
         for individual_i in best_in_this_generation:
             for individual_j in best_in_this_generation:
-                if len(next_generation) >= self._population_size:
+                if len(next_generation) >= self._population_size//2:
                     return next_generation
                 next_generation.append(individual_i + individual_j)
                 next_generation.append(individual_j + individual_i)
@@ -124,19 +123,22 @@ class Individual:
                 individual1 + individual2
             the result will be an new individual
         """
-        new_genome = []
+        new_genome = list(self.genome)
 
-        to_take = int(len(self.genome) / 2)
-        if len(self.genome) % 2 != 0:
-            to_take += 1
+        # generate r (wdp.n float elements)
+        r = [random.random() for _ in range(self.wdp.n)]
+        # at first our genome is all false we'll start filling it later
 
-        for gene in range(to_take):
-            new_genome.append(self.genome[gene])
+        conflicts = [False for _ in range(self.wdp.n)]
 
-        for gene in range(to_take, len(self.genome)):
-             new_genome.append(individual.genome[gene])
+        for index, gene in enumerate(new_genome):
+            if gene:
+                for conflicted in self.wdp[index].concurent_bids:
+                    conflicts[conflicted.bider] = True
 
-        # crossover
+        for index, gene in enumerate(individual.genome):
+            if gene and not conflicts[index]:
+                new_genome[index] = True
 
         return Individual(new_genome, self.wdp)
 
@@ -176,10 +178,11 @@ class Individual:
         genome = [False for _ in range(wdp.n)]
         conflicts = [False for _ in range(wdp.n)]
 
+        lowest_index = 0
         continue_find = True
         while continue_find:
             # select the max of r
-            i = 0
+            i = lowest_index
             max_i = i
             max_val = r[i]
             while i < wdp.n:
@@ -195,10 +198,13 @@ class Individual:
             if not conflicts[max_i]:
                 genome[max_i] = True
 
+            if max_i == lowest_index:
+                lowest_index+=1
+
             continue_find = False
             for i in range(wdp.n):
                 if not genome[i] and not conflicts[i]:
-                    all_checked = True
+                    continue_find = True
                     break
 
         return Individual(genome, wdp)

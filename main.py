@@ -6,7 +6,7 @@ from genetic_algorithm import GeneticAlgorithm
 def main():
     instance = parse_instance("instance/in601")
     instance.build_concurent_items()
-    ga = GeneticAlgorithm(500, 500, instance)
+    ga = GeneticAlgorithm(50, 50, instance)
     ga.process()
     import pdb; pdb.set_trace()
 
