@@ -1,5 +1,14 @@
+import os
 
 from instance import Bid, InstanceWDP
+
+def parse_multiple(directory_name):
+    directory_name
+    data = {}
+    for filename in os.listdir(directory_name):
+        if not filename == "Readme.txt":
+            data[filename] = parse_instance(os.path.join(directory_name, filename))
+    return data
 
 def parse_instance(file_path):
     content = _read_file(file_path)
