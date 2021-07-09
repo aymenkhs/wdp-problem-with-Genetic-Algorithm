@@ -53,7 +53,7 @@ class Population:
         rest = self._generate_random_individuals(self._population_size//4)
         next_generation += rest
         self.population = next_generation
-        self.population.append(best_individuals)
+        self.population += best_individuals
         self.__mutations()
         self.population.append(best_individual)
         self._current_generation += 1
@@ -173,7 +173,7 @@ class Individual:
 
     def __conflict(self, index):
         for concurent in self.wdp[index].concurent_bids:
-            if self.genome[concurent]:
+            if self.genome[concurent.bider]:
                 return True
         return False
 
