@@ -43,26 +43,17 @@ class Population:
             self._generate_population()
             return
 
+        for ind in self.population:
+            if len([g for g in ind.genome if g]) > 1:
+                print("youpi")
+
         self.__sort_based_score()
         best_individual = self.population[0]
 
-        next_generation = []
-        best_in_this_generation = self.__select_bests_in_current_generation()
-        for individual_i in best_in_this_generation:
-            if len(next_generation) >= self._population_size:
-                break
-            for individual_j in best_in_this_generation:
-                next_generation.append(individual_i + individual_j)
-                next_generation.append(individual_j + individual_i)
+        next_generation = self.__crossovers()
 
-        if len(next_generation) >= self._population_size:
-            rest = self._generate_random_individuals(self._population_size//10)
-        else:
-            rest = self._generate_random_individuals(self._population_size - len(next_generation))
-
-        print(len(next_generation))
+        rest = self._generate_random_individuals(10)
         next_generation += rest
-        print(len(next_generation))
         self.population = next_generation
         self.__mutations()
         next_generation.append(best_individual)
@@ -76,22 +67,42 @@ class Population:
         return self.population[30:]
         # a revoir
 
-
     def _generate_random_individuals(self, nb_individuals):
         """ methode that generae a certain number of individuals """
-        rest = []
+        generated = []
         if nb_individuals > 0:
             for _ in range(nb_individuals):
-                rest.append(Individual.generate_individual(self.wdp))
-        return rest
+                generated.append(Individual.generate_individual(self.wdp))
+        return generated
 
     def __sort_based_score(self):
         """ methode that sort the current generation based on their score """
-        self.population = sorted(self.population, key=lambda individual: individual.score)
+        self.population = sorted(self.population, key=lambda individual: individual.score, reverse=True)
 
     def __mutations(self):
         for individual in self.population:
             individual.mutation()
+
+    def __crossovers(self):
+        next_generation = []
+        best_in_this_generation = self.__select_bests_in_current_generation()
+        for individual_i in best_in_this_generation:
+            for individual_j in best_in_this_generation:
+                if len(next_generation) >= self._population_size:
+                    return next_generation
+                next_generation.append(individual_i + individual_j)
+                next_generation.append(individual_j + individual_i)
+        return next_generation
+
+    def __str__(self):
+        string = "population instance\n"
+        for i in self.population:
+            string += str(i)
+            string += "\n"
+        return string
+
+    def __repr__(self):
+        return str(self)
 
 
 class Individual:
@@ -102,7 +113,7 @@ class Individual:
         self.score = self._fitness_function()
 
     def __str__(self):
-        return str(self.genome)
+        return "{}, {}".format(self.genome, self.score)
 
     def __repr__(self):
         return str(self)

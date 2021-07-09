@@ -4,9 +4,9 @@ from instance import Bid, InstanceWDP
 from genetic_algorithm import GeneticAlgorithm
 
 def main():
-    instance = parse_instance("test.txt")
+    instance = parse_instance("instance/in601")
     instance.build_concurent_items()
-    ga = GeneticAlgorithm(50, 50, instance)
+    ga = GeneticAlgorithm(500, 500, instance)
     ga.process()
     import pdb; pdb.set_trace()
 
