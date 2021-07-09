@@ -163,11 +163,19 @@ class Individual:
 
     def mutation(self):
         " make a mutation randomlly in one of the genome genes"
-        mutation_proba = 0 # in percent
+        mutation_proba = 50 # in percent
         rand_num = random.randint(0,99)
         if rand_num < mutation_proba:
             rand_num = random.randint(0, self.wdp.n - 1)
+            if not self.genome[rand_num] and not self.__conflict(rand_num):
+                self.genome[rand_num] = True
             self.genome[rand_num] = not self.genome[rand_num]
+
+    def __conflict(self, index):
+        for concurent in self.wdp[index].concurent_bids:
+            if self.genome[concurent]:
+                return True
+        return False
 
     @classmethod
     def generate_individual(cls, wdp):
